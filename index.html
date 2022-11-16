@@ -1,0 +1,297 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>reveal.js</title>
+
+    <link rel="stylesheet" href="dist/reset.css">
+    <link rel="stylesheet" href="dist/reveal.css">
+    <link rel="stylesheet" href="dist/theme/black.css">
+
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="plugin/highlight/monokai.css">
+    <style>
+        .grid-area {
+            display: grid;
+            grid-auto-flow: column;
+        }
+
+        .reveal pre code {
+            max-height: none;
+        }
+
+        .reveal pre {
+            width: 100%;
+        }
+
+        .inline-image img {
+            margin: 0;
+        }
+
+        .inline-image {
+            display: inline-flex;
+        }
+    </style>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section data-timing="20">
+            <h1>Kotlin in 2022</h1>
+<!--            <img alt="necronomicon but with the gradle logo" src="gradlenomicon.jpg" height="466" width="386">-->
+            <aside class="notes">
+                Welcome to developing gradle plugins
+                Please, do not be scared off by this book. I have read this book so you don't have to.
+                I can tell you what you need to know and leave out the unspeakable horrors contained within.
+            </aside>
+        </section>
+        <section data-timing="60">
+            <h1>About Me</h1>
+            <aside class="notes">
+                You can also find me on the Chicago Tech and Kotlin slacks and the CJUG discord
+            </aside>
+            <h3>John Burns</h3>
+            <div class="grid-area">
+                <div style="text-align: left">
+                    <p>Staff Engineer @ GrubHub</p>
+                    <p>CKUG Co-Organizer</p>
+                    <p class="inline-image"><img alt="twitter logo" src="Twitter-Logo.png" height="48" width="48"/>
+                        <span style="padding-left: .5em">@wakingrufus</span></p>
+                    <p class="inline-image"><img alt="fediverse logo" src="fediverse.png" height="48" width="48"/>
+                        <span style="padding-left: .5em">@wakingrufus@bigshoulders.city</span>
+                    </p>
+                    <p></p>
+                    <p class="inline-image"><img alt="github logo" src="github-logo.png" height="48" width="48"/>
+                        <span style="padding-left: .5em">wakingrufus</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+        <section data-timing="60">
+            <img alt="GrubHub logo" src="gh-logo.png" height="194" width="688">
+            <aside class="notes">
+                HQ is chicago
+                we have been publicly traded and operating off our own revenue and profits since 2014
+                What I do: Service Platform Engineering: JVM Stewardship
+            </aside>
+            <ul>
+                <li>Fully Remote and Hybrid Remote Roles</li>
+                <li>Unlimited PTO</li>
+                <li>8-16 weeks of parental leave</li>
+                <li>4.5 day work week</li>
+            </ul>
+        </section>
+        <section data-timing="90">
+            <h1>About You</h1>
+            <h4 class="fragment">First time at CKUG</h4>
+            <h4 class="fragment">Android</h4>
+            <h4 class="fragment">Backend</h4>
+            <h4 class="fragment">Other places</h4>
+            <aside class="notes">
+
+            </aside>
+        </section>
+        <section data-timing="90">
+            <h1>What's New?</h1>
+            <ul>
+                <li class="fragment">Context Receivers</li>
+                <li class="fragment">Definitely non-nullable types</li>
+                <li class="fragment">Data Object</li>
+                <li class="fragment">Generic Inline Classes</li>
+                <li class="fragment">Compiler improvement</li>
+                <li class="fragment">Adoption</li>
+            </ul>
+
+            <aside class="notes">
+                Theme here: Kotlin is mature, and all the basic functionality you need is there.
+            </aside>
+        </section>
+        <section>
+            <section data-auto-animate data-timing="90">
+                <h2>Context Receivers</h2>
+                <ul>
+                    <li class="fragment">1.6.20</li>
+                    <li class="fragment">Implicit Parameters</li>
+                    <li class="fragment">Ext Fun with receiver, but MORE</li>
+                </ul>
+            </section>
+            <section data-auto-animate data-timing="30">
+                <h2>Context Receivers</h2>
+                <aside class="notes">
+                    Here, the DSL looks very declarative great right?
+                </aside>
+                <pre class="kotlin"><code data-trim data-noescape>
+interface LoggingContext {
+    val log: Logger // This context provides a reference to a logger
+}
+
+context(LoggingContext)
+fun startBusinessOperation() {
+    // You can access the log property
+    log.info("Operation has started")
+}
+
+fun test(loggingContext: LoggingContext) {
+    with(loggingContext) {
+        // You need to have LoggingContext in a scope
+        // to call startBusinessOperation()
+        startBusinessOperation()
+    }
+}
+                </code></pre>
+            </section>
+        </section>
+        <section>
+            <section data-auto-animate data-timing="90">
+                <h2>Definitely non-nullable types</h2>
+                <ul>
+                    <li class="fragment">1.6.20</li>
+                    <li class="fragment">Declare a generic type as non-nullable</li>
+                    <li class="fragment">Esp. useful in Java interop (platform types)</li>
+                    <li class="fragment">Uses type intersection</li>
+                </ul>
+            </section>
+            <section data-auto-animate data-timing="30">
+                <h2>Definitely non-nullable types</h2>
+                <pre class="kotlin"><code data-trim data-noescape>
+fun &lt;T> elvisLike(x: T, y: T): T = x ?: y
+fun test(){
+    elvisLike("", null) // valid
+}
+                </code></pre>
+            </section>
+            <section data-auto-animate data-timing="30">
+                <h2>Definitely non-nullable types</h2>
+                <pre class="kotlin"><code data-trim data-noescape>
+fun &lt;T : Any> elvisLike(x: T, y: T): T = x ?: y
+fun test(){
+    val s : String? = null
+    elvisLike(s, "") // compile error at s
+}
+                </code></pre>
+            </section>
+            <section data-auto-animate data-timing="30">
+                <h2>Definitely non-nullable types</h2>
+                <pre class="kotlin"><code data-trim data-noescape>
+fun &lt;T> elvisLike(x: T, y: T & Any): T & Any = x ?: y
+fun test(){
+    val s : String? = null
+    elvisLike(s, null) // compile error on null
+}
+                </code></pre>
+            </section>
+        </section>
+        <section>
+            <section data-auto-animate data-timing="90">
+                <h2>Data Object</h2>
+                <ul>
+                    <li class="fragment">1.7.20</li>
+                    <li class="fragment">Like data class, but for objects</li>
+                    <li class="fragment">Particularly good in sealed class hierarchies</li>
+                </ul>
+            </section>
+            <section data-auto-animate data-timing="30">
+                <h2>Data Object</h2>
+                <pre class="kotlin"><code data-trim data-noescape>
+sealed class ReadResult {
+    data class Number(val value: Int) : ReadResult()
+    data class Text(val value: String) : ReadResult()
+    data object EndOfFile : ReadResult()
+}
+
+fun main() {
+    println(ReadResult.Number(1)) // Number(value=1)
+    println(ReadResult.Text("Foo")) // Text(value=Foo)
+    println(ReadResult.EndOfFile) // EndOfFile
+}
+                </code></pre>
+            </section>
+        </section>
+        <section>
+            <section data-auto-animate data-timing="90">
+                <h2>Generic Inline Classes</h2>
+                <ul>
+                    <li class="fragment">1.7.20</li>
+                    <li class="fragment">Inline classes can be generic now</li>
+                </ul>
+            </section>
+            <section data-auto-animate data-timing="30">
+                <h2>Generic Inline Classes</h2>
+                <pre class="kotlin"><code data-trim data-noescape>
+@JvmInline
+value class UserId&lt;T>(val value: T)
+
+fun printId(s: UserId&lt;String>) {
+    println(s.value)
+}
+
+fun printId(s: UserId&lt;UUID>) {
+    println(s.value.toString())
+}
+
+fun test(){
+    printId(UserId(""))
+    printId(UserId(UUID.randomUUID()))
+}
+                </code></pre>
+            </section>
+        </section>
+        <section>
+            <section data-auto-animate data-timing="90">
+                <h2>Compiler improvements</h2>
+                <ul>
+                    <li class="fragment">Better Incremental Compilation in Gradle</li>
+                    <li class="fragment">Support for parallel compilation of a single module in the IR JVM backend</li>
+                    <li class="fragment">K2 Compiler has more features, still Alpha</li>
+                </ul>
+            </section>
+        </section>
+        <section>
+            <section data-auto-animate data-timing="90">
+                <h2>Adoption</h2>
+                <ul>
+                    <li class="fragment">Kotlin continues to be dominant in the Android space (95% of apps)</li>
+                    <li class="fragment">Google announced that Kotlin a first-class backend JVM lang internally</li>
+                    <li class="fragment">Google did a study about mixing code</li>
+                    <li class="fragment">Mixing ecosystems (Java + C++) adds significant overhead</li>
+                    <li class="fragment">Mixing languages within ecosystem (JVM Java + JVM Kotlin) does not</li>
+                    <li class="fragment">Spring and Gradle continue to promote Kotlin as a preferred language</li>
+                </ul>
+            </section>
+        </section>
+        <section data-timing="10">
+            <div class="grid-area">
+                <div style="text-align: left">
+                    <div>wakingrufus.github.io/developing-gradle-plugins/</div>
+                    <p class="inline-image"><img alt="twitter logo" src="Twitter-Logo.png" height="48" width="48"/>
+                        <span style="padding-left: .5em">@wakingrufus</span></p>
+                    <p class="inline-image"><img alt="fediverse logo" src="fediverse.png" height="48" width="48"/>
+                        <span style="padding-left: .5em">@wakingrufus@mastodon.technology</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script src="dist/reveal.js"></script>
+<script src="plugin/notes/notes.js"></script>
+<script src="plugin/markdown/markdown.js"></script>
+<script src="plugin/highlight/highlight.js"></script>
+<script>
+    // More info about initialization & config:
+    // - https://revealjs.com/initialization/
+    // - https://revealjs.com/config/
+    Reveal.initialize({
+        hash: true,
+        defaultTiming: 60,
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+    });
+
+
+</script>
+</body>
+</html>
